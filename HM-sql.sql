@@ -14,10 +14,10 @@ CREATE TABLE HMsales(
     product_id varchar(50),
     category varchar(50),
     sub_category varchar(20),
-    sales decimal(4,4),
+    sales decimal(7,4),
     quantity int,
-    discount decimal(1,2),
-    profit decimal(4,4))
+    discount decimal(3,2),
+    profit decimal(7,4))
     ;
 
 LOAD DATA INFILE 'E:\Data Analytics\Projects\SQL\H&M sales/HM-sales-2018.csv'
