@@ -131,3 +131,36 @@ INSERT INTO HMsales VALUES
 
 SELECT * FROM Hmsales;
 
+-- Select the data we will be using
+SELECT city, state, category,  sales, profit
+FROM hmsales;
+
+-- Combining city and state columns into one
+SELECT category,  sales, profit,
+CONCAT(city, ", ", state) AS location
+FROM hmsales;
+
+-- What city has the highest number of sales
+-- Sum of the sales for each city
+-- Cleaning data to make numerical values whole numbers for accuracy
+-- Ordering the cities from highest to lowest sales
+SELECT city, SUM(ROUND(sales,0)) AS total_sales
+FROM hmsales
+GROUP BY city
+ORDER BY new_sales DESC;
+-- Los Angeles has the highest number of sales
+
+-- What is the top selling product category for each city?
+-- IN WORKING PROGRESS
+SELECT city, category, ROUND(sales,0) AS new_sales
+FROM hmsales 
+GROUP BY category;
+
+
+-- What store makes the most profit?
+SELECT city, ROUND(profit,0) AS max_profit
+FROM hmsales
+WHERE profit = (SELECT MAX(profit) FROM hmsales);
+-- The store in New York City makes the most profit
+
+
