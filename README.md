@@ -1,1 +1,2 @@
-# HM-sales-analysis
+# SQL Projects
+A Selection of Data Analytics projects.
