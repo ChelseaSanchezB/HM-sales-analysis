@@ -1,7 +1,8 @@
 Create Database HnM_sales;
-
 USE HnM_sales;
 
+
+-- Creating a table with columns equivalent to dataaset
 CREATE TABLE HMsales(
 	order_id varchar(50),
     order_date datetime,
@@ -20,12 +21,14 @@ CREATE TABLE HMsales(
     profit decimal(7,4))
     ;
 
+-- Making modifications to correct errors
 ALTER TABLE HMsales
 MODIFY COLUMN sales decimal(6,2);
 
 ALTER TABLE HMsales
 MODIFY COLUMN profit decimal(6,2);
 
+-- Manually inserting data into the created table
 INSERT INTO HMsales VALUES 
 	('CA-2018-152156','2018-11-08 ','Second Class','CG-12520','United States ','Henderson','Kentucky','South','FUR-BO-10001798','Footwear','Flip flops',261.96,2,0,41.9136),
 	('CA-2018-152156','2018-11-08 ','Second Class','CG-12520','United States ','Henderson','Kentucky','South','FUR-CH-10000454','Footwear','Sport shoes',731.94,3,0,219.58),
@@ -128,33 +131,64 @@ INSERT INTO HMsales VALUES
 	('CA-2018-149223','2018-09-06 ','Standard Class','ER-13855','United States ','Saint Paul','Minnesota','Central','OFF-AP-10000358','Clothing','Jeans',77.88,6,0,22.59);
 
 
-
 SELECT * FROM Hmsales;
 
--- Select the data we will be using
-SELECT city, state, category,  sales, profit
-FROM hmsales;
+-- Creating a new table for products
+CREATE TABLE Products AS
+SELECT product_id, category, sub_category FROM hmsales;
+
+SELECT * FROM Products;
+
+
+-- CLEANING DATA
+-- Dropping columns that aren't needed
+ALTER TABLE hmsales
+DROP COLUMN order_id, 
+DROP COLUMN order_date, 
+DROP COLUMN ship_mode, 
+DROP COLUMN cust_id, 
+DROP COLUMN region, 
+DROP COLUMN country, 
+DROP COLUMN discount;
+
+SELECT * FROM hmsales;
+
+-- making values whole numbers
+UPDATE hmsales
+SET sales = ROUND(sales,0);
+
+SELECT * FROM hmsales;
+
+-- checking if there are duplicates
+SELECT product_id, COUNT(*) AS count
+FROM hmsales
+GROUP BY product_id
+HAVING COUNT(*) > 1;
 
 -- Combining city and state columns into one
-SELECT category,  sales, profit,
-CONCAT(city, ", ", state) AS location
+SELECT CONCAT(city, ", ", state) AS location
 FROM hmsales;
 
--- What city has the highest number of sales
+
+-- What city has the highest number of sales?
 -- Sum of the sales for each city
--- Cleaning data to make numerical values whole numbers for accuracy
 -- Ordering the cities from highest to lowest sales
-SELECT city, SUM(ROUND(sales,0)) AS total_sales
+SELECT city, SUM(sales) AS total_sales
 FROM hmsales
 GROUP BY city
-ORDER BY new_sales DESC;
+ORDER BY total_sales DESC
+LIMIT 1;
 -- Los Angeles has the highest number of sales
 
--- What is the top selling product category for each city?
--- IN WORKING PROGRESS
-SELECT city, category, ROUND(sales,0) AS new_sales
-FROM hmsales 
-GROUP BY category;
+
+-- What category sells the best?
+SELECT p.category, SUM(s.sales) AS total_sales
+FROM products p
+JOIN hmsales s ON p.product_id = s.product_id
+GROUP BY p.category
+ORDER BY total_sales DESC
+LIMIT 1;
+-- Footwear is the best selling category
 
 
 -- What store makes the most profit?
@@ -162,5 +196,23 @@ SELECT city, ROUND(profit,0) AS max_profit
 FROM hmsales
 WHERE profit = (SELECT MAX(profit) FROM hmsales);
 -- The store in New York City makes the most profit
+
+
+-- What is the top selling category for each city?
+-- WORKING PROGESS
+SELECT city, category, SUM(sales) AS total_sales
+FROM hmsales
+GROUP BY city ,category
+ORDER BY city ASC;
+
+SELECT t.city, t.category, t.total_sales
+FROM (
+    SELECT city, category, SUM(ROUND(sales, 0)) AS total_sales,
+           ROW_NUMBER() OVER (PARTITION BY city ORDER BY SUM(ROUND(sales, 0)) DESC) AS rn
+    FROM hmsales
+    GROUP BY city, category
+) t
+WHERE t.rn = 1
+ORDER BY t.city ASC;
 
 
